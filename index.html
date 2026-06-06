@@ -7,6 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
+
   body {
     background: #0a0608;
     min-height: 100vh;
@@ -19,6 +20,7 @@
     position: relative;
     overflow-x: hidden;
   }
+
   body::before {
     content: '';
     position: fixed;
@@ -29,23 +31,17 @@
     pointer-events: none;
     z-index: 0;
   }
-  .petals {
+
+  /* CANVAS BACKGROUND */
+  #bgCanvas {
     position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
     pointer-events: none;
     z-index: 0;
-    overflow: hidden;
+    opacity: 0.45;
   }
-  .petal {
-    position: absolute;
-    background: rgba(160,30,50,0.35);
-    border-radius: 50% 50% 50% 0;
-    animation: fall linear infinite;
-  }
-  @keyframes fall {
-    0% { transform: translateY(-20px) rotate(0deg); opacity: 0.6; }
-    100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
-  }
+
   .container {
     position: relative;
     z-index: 1;
@@ -55,307 +51,581 @@
     flex-direction: column;
     align-items: center;
   }
+
+  /* PAGES */
+  .page { width: 100%; display: none; flex-direction: column; align-items: center; }
+  .page.active { display: flex; }
+
+  /* AVATAR */
   .avatar-ring {
-    width: 100px;
-    height: 100px;
+    width: 100px; height: 100px;
     border-radius: 50%;
     border: 1.5px solid rgba(160,30,50,0.6);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: flex; align-items: center; justify-content: center;
     margin-bottom: 20px;
     position: relative;
   }
   .avatar-ring::before {
     content: '';
-    position: absolute;
-    inset: -6px;
+    position: absolute; inset: -6px;
     border-radius: 50%;
     border: 0.5px solid rgba(160,30,50,0.25);
   }
   .avatar-inner {
-    width: 86px;
-    height: 86px;
+    width: 86px; height: 86px;
     border-radius: 50%;
     background: linear-gradient(145deg, #1a0810, #2d0f18);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: flex; align-items: center; justify-content: center;
     font-family: 'Cinzel Decorative', serif;
-    font-size: 28px;
-    color: #c8354a;
-    letter-spacing: 2px;
+    font-size: 28px; color: #c8354a; letter-spacing: 2px;
   }
+
   .name {
     font-family: 'Cinzel Decorative', serif;
-    font-size: 22px;
-    font-weight: 700;
-    color: #e8d5c4;
-    text-align: center;
-    letter-spacing: 2px;
-    line-height: 1.3;
-    margin-bottom: 4px;
+    font-size: 22px; font-weight: 700;
+    color: #e8d5c4; text-align: center;
+    letter-spacing: 2px; line-height: 1.3; margin-bottom: 4px;
   }
   .name span { color: #c8354a; }
-  .subtitle {
-    font-style: italic;
-    font-size: 15px;
-    color: rgba(200,160,140,0.7);
-    text-align: center;
-    letter-spacing: 1px;
-    margin-bottom: 8px;
-  }
-  .tagline {
-    font-size: 13px;
-    color: rgba(180,130,120,0.55);
-    text-align: center;
-    letter-spacing: 0.5px;
-    font-style: italic;
-    margin-bottom: 36px;
-  }
-  .divider {
-    width: 120px;
-    height: 0.5px;
-    background: linear-gradient(90deg, transparent, rgba(160,30,50,0.5), transparent);
-    margin-bottom: 28px;
-  }
+  .subtitle { font-style: italic; font-size: 15px; color: rgba(200,160,140,0.7); text-align: center; letter-spacing: 1px; margin-bottom: 8px; }
+  .tagline { font-size: 13px; color: rgba(180,130,120,0.55); text-align: center; letter-spacing: 0.5px; font-style: italic; margin-bottom: 36px; }
 
-  /* PRESENTACIÓN */
+  .divider { width: 120px; height: 0.5px; background: linear-gradient(90deg, transparent, rgba(160,30,50,0.5), transparent); margin-bottom: 28px; }
+
+  /* BIO */
   .bio-card {
-    width: 100%;
-    padding: 24px 28px;
+    width: 100%; padding: 24px 28px;
     background: rgba(160,30,50,0.05);
     border: 0.5px solid rgba(160,30,50,0.25);
-    border-radius: 2px;
-    margin-bottom: 32px;
-    position: relative;
+    border-radius: 2px; margin-bottom: 32px; position: relative;
   }
   .bio-card::before {
-    content: '';
-    position: absolute;
-    left: 0; top: 0; bottom: 0;
-    width: 2px;
-    background: linear-gradient(180deg, transparent, #c8354a, transparent);
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+    width: 2px; background: linear-gradient(180deg, transparent, #c8354a, transparent);
   }
-  .bio-title {
-    font-family: 'Cinzel Decorative', serif;
-    font-size: 9px;
-    letter-spacing: 3px;
-    color: rgba(160,30,50,0.6);
-    text-transform: uppercase;
-    margin-bottom: 14px;
+  .bio-title { font-family: 'Cinzel Decorative', serif; font-size: 9px; letter-spacing: 3px; color: rgba(160,30,50,0.6); text-transform: uppercase; margin-bottom: 14px; }
+  .bio-text { font-size: 15px; line-height: 1.8; color: rgba(220,190,175,0.75); font-style: italic; }
+  .bio-text strong { color: #e8d5c4; font-style: normal; font-weight: 400; }
+
+  /* TASKS */
+  .tasks-section { width: 100%; margin-bottom: 32px; }
+  .tasks-note { font-size: 12px; color: rgba(200,160,140,0.45); font-style: italic; margin-top: 6px; line-height: 1.6; }
+  .tasks-tabs { display: flex; gap: 0; margin-bottom: 20px; border-bottom: 0.5px solid rgba(160,30,50,0.2); }
+  .tab-btn {
+    padding: 10px 20px; background: none; border: none;
+    font-family: 'Cinzel Decorative', serif; font-size: 9px; letter-spacing: 1.5px;
+    color: rgba(200,160,140,0.4); cursor: pointer; position: relative; transition: color 0.3s;
   }
-  .bio-text {
-    font-size: 15px;
-    line-height: 1.8;
-    color: rgba(220,190,175,0.75);
-    font-style: italic;
-  }
-  .bio-text strong {
-    color: #e8d5c4;
-    font-style: normal;
-    font-weight: 400;
-  }
+  .tab-btn::after { content: ''; position: absolute; bottom: -0.5px; left: 0; right: 0; height: 1.5px; background: #c8354a; transform: scaleX(0); transition: transform 0.3s; }
+  .tab-btn.active { color: #e8d5c4; }
+  .tab-btn.active::after { transform: scaleX(1); }
+  .tab-content { display: none; }
+  .tab-content.active { display: flex; flex-direction: column; gap: 10px; }
+  .task-item { padding: 16px 20px; background: rgba(255,255,255,0.02); border: 0.5px solid rgba(160,30,50,0.15); border-radius: 2px; display: flex; gap: 14px; align-items: flex-start; transition: border-color 0.3s; }
+  .task-item:hover { border-color: rgba(160,30,50,0.35); }
+  .task-num { font-family: 'Cinzel Decorative', serif; font-size: 10px; color: rgba(160,30,50,0.5); min-width: 18px; padding-top: 2px; }
+  .task-body { flex: 1; }
+  .task-name { font-size: 14px; color: #e8d5c4; margin-bottom: 4px; }
+  .task-desc { font-size: 12px; color: rgba(200,160,140,0.5); font-style: italic; line-height: 1.5; }
+  .task-tag { font-size: 9px; letter-spacing: 1px; padding: 2px 7px; border: 0.5px solid rgba(160,30,50,0.25); color: rgba(160,30,50,0.55); border-radius: 1px; align-self: flex-start; white-space: nowrap; margin-top: 2px; }
+  .tasks-cta { margin-top: 16px; padding: 14px 20px; background: rgba(160,30,50,0.08); border: 0.5px solid rgba(160,30,50,0.3); border-radius: 2px; text-align: center; font-size: 13px; color: rgba(220,190,175,0.65); font-style: italic; line-height: 1.6; }
+  .tasks-cta strong { color: #c8354a; font-style: normal; font-weight: 400; }
 
   /* LINKS */
-  .links {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
+  .links { width: 100%; display: flex; flex-direction: column; gap: 12px; }
   .link-btn {
-    width: 100%;
-    padding: 16px 24px;
+    width: 100%; padding: 16px 24px;
     background: rgba(255,255,255,0.03);
-    border: 0.5px solid rgba(160,30,50,0.3);
-    border-radius: 2px;
-    color: #e8d5c4;
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-    font-family: inherit;
-    font-size: inherit;
-    cursor: pointer;
+    border: 0.5px solid rgba(160,30,50,0.3); border-radius: 2px;
+    color: #e8d5c4; text-decoration: none;
+    display: flex; align-items: center; gap: 16px;
+    transition: all 0.3s ease; position: relative; overflow: hidden;
+    font-family: inherit; font-size: inherit; cursor: pointer; text-align: left;
   }
-  .link-btn::before {
-    content: '';
-    position: absolute;
-    left: 0; top: 0; bottom: 0;
-    width: 2px;
-    background: #c8354a;
-    transform: scaleY(0);
-    transition: transform 0.3s ease;
-    transform-origin: center;
-  }
+  .link-btn::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 2px; background: #c8354a; transform: scaleY(0); transition: transform 0.3s ease; transform-origin: center; }
   .link-btn:hover { background: rgba(160,30,50,0.08); border-color: rgba(160,30,50,0.6); }
   .link-btn:hover::before { transform: scaleY(1); }
-  .link-icon {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    border: 0.5px solid rgba(160,30,50,0.3);
-  }
+  .link-icon { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 0.5px solid rgba(160,30,50,0.3); }
   .link-icon.active { background: rgba(160,30,50,0.15); color: #c8354a; }
   .link-icon.coming { background: rgba(255,255,255,0.03); color: rgba(200,160,140,0.4); }
   .link-text { flex: 1; }
-  .link-label {
-    font-family: 'Cinzel Decorative', serif;
-    font-size: 11px;
-    letter-spacing: 1.5px;
-    color: #e8d5c4;
-    display: block;
-    margin-bottom: 2px;
-  }
+  .link-label { font-family: 'Cinzel Decorative', serif; font-size: 11px; letter-spacing: 1.5px; color: #e8d5c4; display: block; margin-bottom: 2px; }
   .link-label.muted { color: rgba(200,160,140,0.45); }
   .link-desc { font-size: 12px; color: rgba(200,160,140,0.5); font-style: italic; }
-  .badge-coming {
-    font-size: 9px;
-    letter-spacing: 1px;
-    padding: 3px 8px;
-    border: 0.5px solid rgba(160,30,50,0.25);
-    color: rgba(160,30,50,0.5);
-    border-radius: 1px;
-    font-family: 'Cormorant Garamond', serif;
-    flex-shrink: 0;
-  }
-  .section-label {
-    font-size: 9px;
-    letter-spacing: 3px;
-    color: rgba(160,30,50,0.5);
-    text-transform: uppercase;
-    margin-bottom: 8px;
-    margin-top: 12px;
-    align-self: flex-start;
-  }
-  .footer {
-    margin-top: 48px;
-    font-size: 11px;
-    color: rgba(160,120,110,0.35);
-    letter-spacing: 1px;
-    font-style: italic;
-    text-align: center;
-  }
+  .badge-coming { font-size: 9px; letter-spacing: 1px; padding: 3px 8px; border: 0.5px solid rgba(160,30,50,0.25); color: rgba(160,30,50,0.5); border-radius: 1px; font-family: 'Cormorant Garamond', serif; flex-shrink: 0; }
+
+  .section-label { font-size: 9px; letter-spacing: 3px; color: rgba(160,30,50,0.5); text-transform: uppercase; margin-bottom: 8px; margin-top: 12px; align-self: flex-start; }
+
+  .footer { margin-top: 48px; font-size: 11px; color: rgba(160,120,110,0.35); letter-spacing: 1px; font-style: italic; text-align: center; }
+
   svg.cherry { width: 40px; height: 40px; margin-bottom: 16px; opacity: 0.7; }
+
+  /* FINDOM PAGE */
+  .page-header {
+    width: 100%; text-align: center; margin-bottom: 32px; padding-bottom: 24px;
+    border-bottom: 0.5px solid rgba(160,30,50,0.2);
+  }
+  .page-header .page-title { font-family: 'Cinzel Decorative', serif; font-size: 16px; letter-spacing: 3px; color: #e8d5c4; margin-bottom: 6px; }
+  .page-header .page-title span { color: #c8354a; }
+  .page-header .page-sub { font-size: 12px; color: rgba(200,160,140,0.45); font-style: italic; letter-spacing: 1px; }
+
+  .intro-block {
+    width: 100%; padding: 22px 26px;
+    background: rgba(160,30,50,0.06);
+    border-left: 2px solid #c8354a;
+    border-right: 0.5px solid rgba(160,30,50,0.15);
+    border-top: 0.5px solid rgba(160,30,50,0.15);
+    border-bottom: 0.5px solid rgba(160,30,50,0.15);
+    margin-bottom: 32px;
+  }
+  .intro-block p { font-size: 14px; line-height: 1.85; color: rgba(220,190,175,0.75); font-style: italic; }
+  .intro-block p strong { color: #e8d5c4; font-style: normal; font-weight: 400; }
+
+  .rules-list { width: 100%; list-style: none; margin-bottom: 32px; }
+  .rules-list li { padding: 16px 0; border-bottom: 0.5px solid rgba(160,30,50,0.1); display: flex; gap: 16px; align-items: flex-start; }
+  .rule-num { font-family: 'Cinzel Decorative', serif; font-size: 9px; color: rgba(160,30,50,0.55); min-width: 22px; padding-top: 3px; flex-shrink: 0; }
+  .rule-body { flex: 1; }
+  .rule-title { font-size: 13px; color: #e8d5c4; margin-bottom: 3px; }
+  .rule-desc { font-size: 12px; color: rgba(200,160,140,0.5); font-style: italic; line-height: 1.55; }
+
+  .services-grid { width: 100%; display: flex; flex-direction: column; gap: 10px; margin-bottom: 32px; }
+  .svc-card { padding: 18px 22px; background: rgba(255,255,255,0.02); border: 0.5px solid rgba(160,30,50,0.18); border-radius: 2px; transition: border-color 0.3s; }
+  .svc-card:hover { border-color: rgba(160,30,50,0.4); }
+  .svc-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
+  .svc-name { font-family: 'Cinzel Decorative', serif; font-size: 10px; letter-spacing: 1.5px; color: #e8d5c4; }
+  .svc-price { color: #c8354a; font-size: 14px; margin-left: 12px; flex-shrink: 0; }
+  .svc-desc { font-size: 12px; color: rgba(200,160,140,0.5); font-style: italic; line-height: 1.55; }
+  .svc-tag { display: inline-block; font-size: 8px; letter-spacing: 1px; padding: 2px 7px; border: 0.5px solid rgba(160,30,50,0.25); color: rgba(160,30,50,0.55); margin-top: 8px; }
+
+  .wishlist-note { width: 100%; padding: 20px 24px; background: rgba(160,30,50,0.04); border: 0.5px solid rgba(160,30,50,0.18); text-align: center; margin-bottom: 32px; }
+  .wishlist-note .wl-label { font-family: 'Cinzel Decorative', serif; font-size: 8px; letter-spacing: 3px; color: rgba(160,30,50,0.5); margin-bottom: 10px; }
+  .wishlist-note p { font-size: 12.5px; color: rgba(200,160,140,0.6); font-style: italic; line-height: 1.7; }
+  .wishlist-note p strong { color: #e8d5c4; font-style: normal; }
+
+  /* BACK BUTTON */
+  .back-btn {
+    display: flex; align-items: center; gap: 10px;
+    padding: 14px 28px; margin-bottom: 36px;
+    background: rgba(255,255,255,0.02);
+    border: 0.5px solid rgba(160,30,50,0.3); border-radius: 2px;
+    color: rgba(200,160,140,0.6); font-family: 'Cinzel Decorative', serif;
+    font-size: 9px; letter-spacing: 2px; cursor: pointer;
+    transition: all 0.3s; align-self: flex-start;
+  }
+  .back-btn:hover { background: rgba(160,30,50,0.08); color: #e8d5c4; border-color: rgba(160,30,50,0.5); }
+  .back-btn svg { transition: transform 0.3s; }
+  .back-btn:hover svg { transform: translateX(-3px); }
 </style>
 </head>
 <body>
 
-<div class="petals" id="petals"></div>
+<canvas id="bgCanvas"></canvas>
 
 <div class="container">
 
-  <svg class="cherry" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="13" cy="26" r="7" fill="rgba(160,30,50,0.6)" stroke="rgba(200,60,80,0.4)" stroke-width="0.5"/>
-    <circle cx="27" cy="26" r="7" fill="rgba(140,20,40,0.7)" stroke="rgba(200,60,80,0.4)" stroke-width="0.5"/>
-    <path d="M13 19 Q16 10 20 8 Q24 10 27 19" stroke="rgba(80,120,60,0.6)" stroke-width="1" fill="none"/>
-    <path d="M20 8 Q22 4 25 3" stroke="rgba(80,120,60,0.5)" stroke-width="0.8" fill="none"/>
-  </svg>
+  <!-- ===== HOME PAGE ===== -->
+  <div class="page active" id="page-home">
 
-  <div class="avatar-ring">
-    <div class="avatar-inner">MC</div>
+    <svg class="cherry" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="13" cy="26" r="7" fill="rgba(160,30,50,0.6)" stroke="rgba(200,60,80,0.4)" stroke-width="0.5"/>
+      <circle cx="27" cy="26" r="7" fill="rgba(140,20,40,0.7)" stroke="rgba(200,60,80,0.4)" stroke-width="0.5"/>
+      <path d="M13 19 Q16 10 20 8 Q24 10 27 19" stroke="rgba(80,120,60,0.6)" stroke-width="1" fill="none"/>
+      <path d="M20 8 Q22 4 25 3" stroke="rgba(80,120,60,0.5)" stroke-width="0.8" fill="none"/>
+    </svg>
+
+    <div class="avatar-ring"><div class="avatar-inner">MC</div></div>
+    <div class="name">Miss <span>Cherry</span></div>
+    <div class="subtitle">Dominatrix</div>
+    <div class="tagline">Puedo darte el trato miserable que te mereces.</div>
+    <div class="divider"></div>
+
+    <!-- BIO -->
+    <div class="bio-card">
+      <div class="bio-title">— sobre mí</div>
+      <div class="bio-text">
+        Los esclavos como tú pueden llamarme <strong>Miss Cherry</strong>, soy una dominatrix online que adora torturar a los subs bajo su control.<br><br>
+        Me especializo en <strong>humillación</strong>, entrenamiento de sumisos con rituales, tareas personalizadas y control a distancia. Mi selección de kinks es bastante amplia.<br><br>
+        Cada sub que llega a mí es sumamente especial y por ende recibe atención dedicada y estructurada.<br><br>
+        Todo lo bueno tiene un precio. Si buscas una experiencia real y bien administrada, estás en buenas manos... 🖤
+      </div>
+    </div>
+
+    <!-- TAREAS GRATUITAS -->
+    <div class="tasks-section">
+      <div class="bio-title">— tareas gratuitas</div>
+      <div class="tasks-note">Una muestra bastante leve de lo que te espera. Completa estas tareas y repórtame los resultados.</div>
+      <br>
+      <div class="tasks-tabs">
+        <button class="tab-btn active" onclick="switchTab('humillacion', this)">Humillación</button>
+        <button class="tab-btn" onclick="switchTab('entrenamiento 🐶', this)">Entrenamiento</button>
+      </div>
+
+      <div class="tab-content active" id="tab-humillacion">
+        <div class="task-item">
+          <span class="task-num">01</span>
+          <div class="task-body">
+            <div class="task-name">Plana</div>
+            <div class="task-desc">Realiza una plana a mano de 50 líneas (enumeradas) en las que escríbas "Soy la puta de Miss Cherry".</div>
+          </div>
+          <span class="task-tag">escrita</span>
+        </div>
+        <div class="task-item">
+          <span class="task-num">02</span>
+          <div class="task-body">
+            <div class="task-name">"Please let me be under your spell"</div>
+            <div class="task-desc">Escribe una lista a mano de 10 razones por las que necesitas ser controlado.</div>
+          </div>
+          <span class="task-tag">escrita</span>
+        </div>
+        <div class="task-item">
+          <span class="task-num">03</span>
+          <div class="task-body">
+            <div class="task-name">Agradeciendo por los alimentos</div>
+            <div class="task-desc">Durante todo un día, antes de cada comida escribe: "Pido permiso a Miss Cherry para alimentarme." Documenta cada vez que lo hagas.</div>
+          </div>
+          <span class="task-tag">diaria</span>
+        </div>
+      </div>
+
+      <div class="tab-content" id="tab-entrenamiento">
+        <div class="task-item">
+          <span class="task-num">01</span>
+          <div class="task-body">
+            <div class="task-name">Oración</div>
+            <div class="task-desc">Recita una oración todas las mañanas en la que expreses lo mucho que te encanta ser una mascota obediente.</div>
+          </div>
+          <span class="task-tag">diaria</span>
+        </div>
+        <div class="task-item">
+          <span class="task-num">02</span>
+          <div class="task-body">
+            <div class="task-name">Ejercitate, ¿quieres?</div>
+            <div class="task-desc">Haz 20 lagartijas seguidas y asegurate de hacerlo bien, cada vez que bajes di "Amo a Miss Cherry".</div>
+          </div>
+          <span class="task-tag">física</span>
+        </div>
+        <div class="task-item">
+          <span class="task-num">03</span>
+          <div class="task-body">
+            <div class="task-name">Límite de tiempo de pantalla</div>
+            <div class="task-desc">Elimina una app de entretenimiento (red social, juego, etc...) de tu teléfono por 48 horas. Demuestrame que puedes hacer algo tan simple como eso.</div>
+          </div>
+          <span class="task-tag">control</span>
+        </div>
+      </div>
+
+      <div class="tasks-cta">
+        <strong>¿Completaste alguna tarea? Escríbeme tu reporte.</strong>
+      </div>
+    </div>
+
+    <!-- LINKS -->
+    <div class="links">
+      <div class="section-label">— servicios & contacto</div>
+
+      <a class="link-btn" href="https://drive.google.com/file/d/1uJA2dhApfF1W-OIMhrpq4ifetAg8YYwX/view?usp=sharing" target="_blank">
+        <div class="link-icon active">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        </div>
+        <div class="link-text">
+          <span class="link-label">Catálogo de servicios</span>
+          <span class="link-desc">Suscripciones y catálogo general.</span>
+        </div>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(160,30,50,0.5)" stroke-width="1.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+
+      <button class="link-btn" onclick="goTo('page-findom')">
+        <div class="link-icon active">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M12 6v6l4 2"/></svg>
+        </div>
+        <div class="link-text">
+          <span class="link-label">Dominación Financiera</span>
+          <span class="link-desc">Reglas, tributos y control de gastos.</span>
+        </div>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(160,30,50,0.5)" stroke-width="1.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+
+      <div class="section-label" style="margin-top:20px">— próximamente</div>
+
+      <div class="link-btn" style="cursor:default;">
+        <div class="link-icon coming">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </div>
+        <div class="link-text">
+          <span class="link-label muted">Fansly</span>
+          <span class="link-desc">Contenido exclusivo</span>
+        </div>
+        <span class="badge-coming">soon</span>
+      </div>
+
+      <div class="link-btn" style="cursor:default;">
+        <div class="link-icon coming">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        </div>
+        <div class="link-text">
+          <span class="link-label muted">OnlyFans</span>
+          <span class="link-desc">Suscripción mensual</span>
+        </div>
+        <span class="badge-coming">soon</span>
+      </div>
+
+      <div class="link-btn" style="cursor:default;">
+        <div class="link-icon coming">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4 2 2 0 0 1 3.6 1.22h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.81a16 16 0 0 0 6.29 6.29l.95-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        </div>
+        <div class="link-text">
+          <span class="link-label muted">Telegram</span>
+          <span class="link-desc">Solo para subs que adquieran mis servicios.</span>
+        </div>
+        <span class="badge-coming">privado</span>
+      </div>
+    </div>
+
+    <div class="footer">♥ &nbsp; Un perro sin adiestramiento es una bestia más. &nbsp; ♥</div>
   </div>
 
-  <div class="name">Miss <span>Cherry</span></div>
-  <div class="subtitle">Dominatrix</div>
-  <div class="tagline">Puedo darte el trato miserable que te mereces.</div>
-  <div class="divider"></div>
+  <!-- ===== FINDOM PAGE ===== -->
+  <div class="page" id="page-findom">
 
-  <!-- PRESENTACIÓN -->
-  <div class="bio-card">
-    <div class="bio-title">— sobre mí</div>
-    <div class="bio-text">
-      Los esclavos como tú pueden llamarme <strong>Miss Cherry</strong>, soy una dominatrix online que adora torturar a los subs bajo su control.<br><br>
-      Me especializo en <strong>humillación</strong>, entrenamiento de sumisos con rituales, tareas personalizadas y control a distancia. Mi selección de kinks es bastante amplia.<br><br>
-      Cada sub que llega a mí es sumamente especial y por ende recibe atención dedicada y estructurada.<br><br>
-      Todo lo bueno tiene un precio. Si buscas una experiencia real y bien administrada, estás en buenas manos...❤
+    <div class="page-header">
+      <div class="page-title">Dominación <span>Financiera</span></div>
+      <div class="page-sub">— Miss Cherry · Findom —</div>
     </div>
+
+    <!-- INTRO -->
+    <div class="intro-block">
+      <p>
+        El <strong>Findom</strong> es una forma de entrega total. Aquí reconoces que tu dinero y voluntad me pertenecen.<br><br>
+        No se trata solo de que me transfieras dinero. Se trata de una <strong>rendición consciente</strong> del control, de demostrar tu devoción de la manera más concreta posible.<br><br>
+        Si llegaste aquí, ambos sabemos lo que buscas. Lo que no sabías es que yo soy la Domme que necesitas.
+      </p>
+    </div>
+
+    <!-- REGLAS -->
+    <div class="bio-title" style="align-self:flex-start; margin-bottom:16px;">— reglas si quieres ser mi sub financiero</div>
+    <ul class="rules-list">
+      <li>
+        <span class="rule-num">01</span>
+        <div class="rule-body">
+          <div class="rule-title">Tu ofrenda es obligatoria para iniciar</div>
+          <div class="rule-desc">No se acepta ningún sub financiero sin tributo de presentación (como mínimo 10USD). No hago excepciones. </div>
+        </div>
+      </li>
+      <li>
+        <span class="rule-num">02</span>
+        <div class="rule-body">
+          <div class="rule-title">Tu dinero no compra mi tiempo, primero lo solicita</div>
+          <div class="rule-desc">Pagar no garantiza una respuesta inmediata. Mi atención se gana con obediencia, no solo con transferencias. Si transfieres solo tienes una prioridad leve sobre el resto.</div>
+        </div>
+      </li>
+      <li>
+        <span class="rule-num">03</span>
+        <div class="rule-body">
+          <div class="rule-title">No negocio mis precios</div>
+          <div class="rule-desc">Las tarifas están establecidas. Regatear es una falta de respeto que obviamente voy a ignorar.</div>
+        </div>
+      </li>
+      <li>
+        <span class="rule-num">04</span>
+        <div class="rule-body">
+          <div class="rule-title">Los reportes son obligatorios</div>
+          <div class="rule-desc">Si te asigno una tarea financiera, espero reporte completo. Sin reporte, no hay siguiente tarea.</div>
+        </div>
+      </li>
+      <li>
+        <span class="rule-num">05</span>
+        <div class="rule-body">
+          <div class="rule-title">No se aceptan reembolsos</div>
+          <div class="rule-desc">Toda ofrenda es voluntaria y definitiva. Si no estás seguro, puedes no enviar nada.</div>
+        </div>
+      </li>
+      <li>
+        <span class="rule-num">06</span>
+        <div class="rule-body">
+          <div class="rule-title">Discreción</div>
+          <div class="rule-desc">Lo que ocurra en nuestro chat -en caso de que decida responderte- se queda ahí.</div>
+        </div>
+      </li>
+    </ul>
+
+    <!-- SERVICIOS -->
+    <div class="bio-title" style="align-self:flex-start; margin-bottom:16px;">— tributos</div>
+    <div class="services-grid">
+      <div class="svc-card">
+        <div class="svc-top"><span class="svc-name">Tributo de presentación</span><span class="svc-price">10USD – 30USD</span></div>
+        <div class="svc-desc">Para subs nuevos que desean ser considerados. Sin tributo no pienso responderte. Mientras más elevado sea tu tributo, más prioridad te doy. Envíame captura del comprobante de pago antes de escribirme cualquier cosa una vez hayas hecho la transacción.</div>
+        <span class="svc-tag">obligatorio para nuevos subs que deseen contratar mis servicios de FinDomme</span>
+      </div>
+      <div class="svc-card">
+        <div class="svc-top"><span class="svc-name">Tributo de devoción</span><span class="svc-price">25USD / semana</span></div>
+        <div class="svc-desc">Para subs recurrentes que desean mantener mi atención y demostrar lealtad continuada.</div>
+        <span class="svc-tag">recurrente</span>
+      </div>
+      <div class="svc-card">
+        <div class="svc-top"><span class="svc-name">Tributo espontáneo</span><span class="svc-price">libre</span></div>
+        <div class="svc-desc">Cuando sientes el impulso de demostrar tu devoción sin que te lo pida.</div>
+        <span class="svc-tag">voluntario</span>
+      </div>
+    </div>
+
+    <div class="bio-title" style="align-self:flex-start; margin-bottom:16px; margin-top:8px;">— control de gastos</div>
+    <div class="services-grid">
+      <div class="svc-card">
+        <div class="svc-top"><span class="svc-name">Tarea de restricción</span><span class="svc-price">27USD</span></div>
+        <div class="svc-desc">Te asigno un presupuesto estricto por 48-72 horas. Decides cuánto gastas solo con mi aprobación.</div>
+        <span class="svc-tag">control · 48-72h</span>
+      </div>
+      <div class="svc-card">
+        <div class="svc-top"><span class="svc-name">Auditoría financiera</span><span class="svc-price">40USD</span></div>
+        <div class="svc-desc">Me envías un resumen de tus gastos de la semana. Yo evalúo, critico y establezco nuevas reglas.</div>
+        <span class="svc-tag">semanal · documento</span>
+      </div>
+      <div class="svc-card">
+        <div class="svc-top"><span class="svc-name">Entrenamiento mensual</span><span class="svc-price">75USD</span></div>
+        <div class="svc-desc">Control completo de tus hábitos de gasto durante un mes. Reportes semanales y tareas sorpresa.</div>
+        <span class="svc-tag">mensual</span>
+      </div>
+    </div>
+
+    <!-- WISHLIST -->
+    <div class="wishlist-note" style="margin-top:8px;">
+      <div class="wl-label">— Mi Wishlist · throne —</div>
+      <p>¿Quieres demostrarme tu devoción con algo más que dinero?<br>
+      Mi lista de deseos estará disponible próximamente en <strong>Throne</strong>.<br><br>
+      <strong>Hay objetos de todos los rangos de precio y cada regalo es bien recibido.</strong></p>
+    </div>
+
+    <!-- BACK -->
+    <button class="back-btn" onclick="goTo('page-home')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      Volver al inicio
+    </button>
+
+    <div class="footer">♥ &nbsp; Miss Cherry &nbsp;·&nbsp; Dominatrix &nbsp; ♥</div>
   </div>
-
-  <div class="links">
-
-    <div class="section-label">— servicios & contacto</div>
-
-    <a class="link-btn" href="https://drive.google.com/file/d/1uJA2dhApfF1W-OIMhrpq4ifetAg8YYwX/view?usp=sharing" target="_blank">
-      <div class="link-icon active">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-      </div>
-      <div class="link-text">
-        <span class="link-label">Catálogo de servicios</span>
-        <span class="link-desc">Suscripciones y catálogo general</span>
-      </div>
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(160,30,50,0.5)" stroke-width="1.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-    </a>
-
-
-   
-  
-
-
-
-   
-    <div class="section-label" style="margin-top:20px">— próximamente</div>
-
-    <div class="link-btn" style="cursor:default;">
-      <div class="link-icon coming">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-      </div>
-      <div class="link-text">
-        <span class="link-label muted">Fansly</span>
-        <span class="link-desc">Contenido exclusivo</span>
-      </div>
-      <span class="badge-coming">soon</span>
-    </div>
-
-    <div class="link-btn" style="cursor:default;">
-      <div class="link-icon coming">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-      </div>
-      <div class="link-text">
-        <span class="link-label muted">OnlyFans</span>
-        <span class="link-desc">Suscripción mensual</span>
-      </div>
-      <span class="badge-coming">soon</span>
-    </div>
-
-    <div class="link-btn" style="cursor:default;">
-      <div class="link-icon coming">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4 2 2 0 0 1 3.6 1.22h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.81a16 16 0 0 0 6.29 6.29l.95-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-      </div>
-      <div class="link-text">
-        <span class="link-label muted">Telegram</span>
-        <span class="link-desc">Solo para subs activos</span>
-      </div>
-      <span class="badge-coming">privado</span>
-    </div>
-
-  </div>
-
-  <div class="footer">♥ &nbsp; Un perro sin adiestramiento es una bestia más &nbsp; ♥</div>
 
 </div>
 
 <script>
-const petalsContainer = document.getElementById('petals');
-for (let i = 0; i < 18; i++) {
-  const p = document.createElement('div');
-  p.className = 'petal';
-  p.style.left = Math.random() * 100 + 'vw';
-  p.style.animationDuration = (8 + Math.random() * 12) + 's';
-  p.style.animationDelay = (Math.random() * 15) + 's';
-  p.style.width = (4 + Math.random() * 5) + 'px';
-  p.style.height = (7 + Math.random() * 6) + 'px';
-  p.style.opacity = 0.2 + Math.random() * 0.3;
-  petalsContainer.appendChild(p);
+// PAGE NAVIGATION
+function goTo(pageId) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(pageId).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
+
+// TABS
+function switchTab(tab, btn) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  btn.classList.add('active');
+}
+
+// murcielagos y petalos en canva
+const canvas = document.getElementById('bgCanvas');
+const ctx = canvas.getContext('2d');
+
+function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+resize();
+window.addEventListener('resize', resize);
+
+// Petalos <3
+const petals = Array.from({length: 20}, () => ({
+  x: Math.random() * window.innerWidth,
+  y: Math.random() * window.innerHeight,
+  w: 4 + Math.random() * 5,
+  h: 7 + Math.random() * 5,
+  speed: 0.4 + Math.random() * 0.6,
+  drift: (Math.random() - 0.5) * 0.4,
+  rot: Math.random() * Math.PI * 2,
+  rotSpeed: (Math.random() - 0.5) * 0.03,
+  alpha: 0.15 + Math.random() * 0.2
+}));
+
+// murcielagos
+class Bat {
+  constructor() { this.reset(true); }
+  reset(init) {
+    this.x = init ? Math.random() * window.innerWidth : -40;
+    this.y = 60 + Math.random() * (window.innerHeight * 0.5);
+    this.speed = 0.4 + Math.random() * 0.5;
+    this.wingPhase = Math.random() * Math.PI * 2;
+    this.wingSpeed = 0.06 + Math.random() * 0.04;
+    this.size = 7 + Math.random() * 6;
+    this.alpha = 0.12 + Math.random() * 0.15;
+    this.yDrift = (Math.random() - 0.5) * 0.3;
+  }
+  update() {
+    this.x += this.speed;
+    this.y += this.yDrift;
+    this.wingPhase += this.wingSpeed;
+    if (this.x > window.innerWidth + 50) this.reset(false);
+  }
+  draw(ctx) {
+    const s = this.size;
+    const wing = Math.sin(this.wingPhase) * s * 0.6;
+    ctx.save();
+    ctx.translate(this.x, this.y);
+    ctx.globalAlpha = this.alpha;
+    ctx.fillStyle = '#c8354a';
+    // body
+    ctx.beginPath();
+    ctx.ellipse(0, 0, s * 0.35, s * 0.25, 0, 0, Math.PI * 2);
+    ctx.fill();
+    // left wing
+    ctx.beginPath();
+    ctx.moveTo(-s * 0.3, 0);
+    ctx.bezierCurveTo(-s * 1.1, -wing, -s * 1.4, wing * 0.3, -s * 0.3, s * 0.2);
+    ctx.fill();
+    // right wing
+    ctx.beginPath();
+    ctx.moveTo(s * 0.3, 0);
+    ctx.bezierCurveTo(s * 1.1, -wing, s * 1.4, wing * 0.3, s * 0.3, s * 0.2);
+    ctx.fill();
+    // ears
+    ctx.beginPath();
+    ctx.moveTo(-s * 0.15, -s * 0.2);
+    ctx.lineTo(-s * 0.25, -s * 0.5);
+    ctx.lineTo(-s * 0.05, -s * 0.2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(s * 0.15, -s * 0.2);
+    ctx.lineTo(s * 0.25, -s * 0.5);
+    ctx.lineTo(s * 0.05, -s * 0.2);
+    ctx.fill();
+    ctx.restore();
+  }
+}
+
+const bats = Array.from({length: 8}, () => new Bat());
+
+function animate() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Draw petals
+  petals.forEach(p => {
+    p.x += p.drift;
+    p.y += p.speed;
+    p.rot += p.rotSpeed;
+    if (p.y > window.innerHeight + 20) { p.y = -20; p.x = Math.random() * window.innerWidth; }
+    ctx.save();
+    ctx.translate(p.x, p.y);
+    ctx.rotate(p.rot);
+    ctx.globalAlpha = p.alpha;
+    ctx.fillStyle = '#c8354a';
+    ctx.beginPath();
+    ctx.ellipse(0, 0, p.w / 2, p.h / 2, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  });
+
+  // Draw bats
+  bats.forEach(b => { b.update(); b.draw(ctx); });
+
+  requestAnimationFrame(animate);
+}
+animate();
 </script>
 </body>
 </html>
